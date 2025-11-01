@@ -6,24 +6,43 @@
 
     // capture the data returned
     var searchText = Request.Form["searchText"];
- 
+    var selectedCategory = Request.Form["category"];
+
     var sql = " ";
     var data = new List<dynamic>();
 
+    var csql = "SELECT CategoryID, Category FROM Category ORDER BY Category ASC;";
+    var catData = db.Query(csql);
 
-    // define the SQL query to run
-    if (String.IsNullOrEmpty(searchText))
+    if (!String.IsNullOrEmpty(searchText) && !String.IsNullOrEmpty(selectedCategory))
     {
-        // show all items
-        sql = "SELECT * FROM BoardGame ORDER BY Name ASC";
+        sql = "SELECT * FROM BoardGame AS b " +
+        " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
+        "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
+        " WHERE Name LIKE CONCAT(@0, '%') AND c.CategoryID LIKE @1 ORDER BY Name ASC";
+        data = db.Query(sql, searchText, selectedCategory).ToList();
+    }
+    else if (!String.IsNullOrEmpty(searchText))
+    {
+        sql = "SELECT * FROM BoardGame WHERE Name LIKE CONCAT(@0, '%')";
+        data = db.Query(sql, searchText).ToList();
+    }
+    else if (!String.IsNullOrEmpty(selectedCategory))
+    {
+        sql = "SELECT * FROM BoardGame AS b " +
+            " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
+            "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
+            " WHERE c.CategoryID LIKE @0 ORDER BY Name ASC";
+        data = db.Query(sql, selectedCategory).ToList();
     }
     else
     {
-        // show only items that start with the search text
-        sql = "SELECT * FROM BoardGame WHERE Name LIKE CONCAT(@0, '%')";
+        sql = "SELECT * FROM BoardGame AS b " +
+                    " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
+                    "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
+                    " ORDER BY Name ASC";
+        data = db.Query(sql).ToList();
     }
-
-    data = db.Query(sql, searchText).ToList();
 
 }
 
@@ -55,7 +74,18 @@
         <div class="col-3">
             <input type="text" name="searchText" class="form-control" placeholder="Search Games" value="@Request.Form["searchText"]" />
         </div>
-        <div class="col-7">
+        <div class="col-3">
+            <select id="Category" name="category" class="form-control">
+                <option value=""></option>
+                 @foreach (var row in catData)
+                 {
+                    <option value="@row.CategoryID" @(selectedCategory == row.CategoryID.ToString() ? "selected" : "")>
+                        @row.Category
+                    </option>               
+                 }
+            </select>
+        </div>
+        <div class="col-4">
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
         <div class="col">
