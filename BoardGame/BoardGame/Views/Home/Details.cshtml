@@ -5,17 +5,16 @@
     var db = Database.Open("BoardGame");
 
     // define the query to be run
-    var sql = "SELECT b.*, c.Category AS categoryName " +
-                "FROM BoardGame AS b " +
+    var sql = "SELECT b.*, c.Category AS categoryName, calc.reviewCount FROM BoardGame AS b " +
                 "LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
                 "LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
-                "WHERE b.BGGId LIKE @0";
-
-
+                "LEFT JOIN (SELECT BGGId, COUNT(*) AS reviewCount " +
+                "FROM UserRating GROUP BY BGGId) AS calc ON b.BGGId = calc.BGGId WHERE b.BGGId LIKE @0";
 
     var data = db.QuerySingle(sql, id);
 
 }
+
 
         <div class="jumbotron pt-1 pb-1 mt-2">
             <h2 class="text-center">Product Detail</h2>
@@ -29,32 +28,49 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">@data.Name</h5>
-                            <div class="card-text"> 
+                            <div class="card-text">
                                 <p class="card-text">@data.Description</p>
-                                <p class="card-text">Category: @data.categoryName </p>
-                                <p class="card-text">Year Published: @data.YearPublished</p>
-                                <p class="card-text">Game Weight: @data.GameWeight</p>
-                                <p class="card-text">Min Players: @data.MinPlayers</p>
-                                <p class="card-text">Max Players: @data.MaxPlayers</p>
-                                <p class="card-text">Age: @data.ComAgeRec</p>
-                                <p class="card-text">Language Ease: @data.LanguageEase</p>
-                                <p class="card-text">Best Players: @data.BestPlayers</p>
-                                <p class="card-text">Number Owned: @data.NumOwned</p>
-                                <p class="card-text">Number Want: @data.NumWant</p>
-                                <p class="card-text">Number Wish: @data.NumWish</p>
-                                <p class="card-text">Mfg Playtime: @data.MfgPlaytime</p>
-                                <p class="card-text">Com Min Playtime: @data.ComMinPlaytime</p>
-                                <p class="card-text">Com Max Playtime: @data.ComMaxPlaytime</p>
-                                <p class="card-text">Mfg Age Rec: @data.MfgAgeRec</p>
-                                <p class="card-text">Number Alternates: @data.NumAlternates</p>
-                                <p class="card-text">Number Expansions: @data.NumExpansions</p>
-                                <p class="card-text">Number Implementations: @data.NumImplementations</p>
-                                <p class="card-text">Family: @data.Family</p>
-                                <p class="card-text">Rank in Board Game: @data.RankInboardgame</p>
-                                <p class="card-text">Rank in Strategy Games: @data.RankInstrategygames</p>
-                                <p class="card-text">Rank in Family Games: @data.RankInfamilygames</p>
-                                <p class="card-text">Rank in Thematic: @data.RankInthematic</p>
-                         
+                                                               
+                                <p class="card-text">
+                                    (@(data.reviewCount ?? 0) @(data.reviewCount == 1 ? "Review" : "Reviews"))
+                                </p>                          
+                                <div class="text-muted small">
+                                    <p class="card-text">Category: @data.categoryName </p>
+                                    @if (data.YearPublished != null)
+                                    {
+                                        <p class="card-text">Year Published: @data.YearPublished</p>
+                                    }
+                                    <p class="card-text">Game Weight: @Math.Round(Convert.ToDouble(data.GameWeight), 2)</p>
+                                    <p class="card-text">Min Players: @data.MinPlayers</p>
+                                    <p class="card-text">Max Players: @data.MaxPlayers</p>
+                                    @if (data.ComAgeRec != null)
+                                    {
+                                        <p class="card-text">Age: @Math.Round(Convert.ToDouble(data.ComAgeRec), 0)</p>
+                                    }
+                                    @if (data.LanguageEase != null)
+                                    {
+                                        <p class="card-text">Language Ease: @Math.Round(Convert.ToDouble(data.LanguageEase), 0)</p>
+                                    }
+                                    <p class="card-text">Best Players: @data.BestPlayers</p>
+                                    <p class="card-text">Number Owned: @data.NumOwned</p>
+                                    <p class="card-text">Number Want: @data.NumWant</p>
+                                    <p class="card-text">Number Wish: @data.NumWish</p>
+                                    <p class="card-text">Mfg Playtime: @data.MfgPlaytime</p>
+                                    <p class="card-text">Com Min Playtime: @data.ComMinPlaytime</p>
+                                    <p class="card-text">Com Max Playtime: @data.ComMaxPlaytime</p>
+                                    <p class="card-text">Mfg Age Rec: @data.MfgAgeRec</p>
+                                    <p class="card-text">Number Alternates: @data.NumAlternates</p>
+                                    <p class="card-text">Number Expansions: @data.NumExpansions</p>
+                                    <p class="card-text">Number Implementations: @data.NumImplementations</p>
+                                    @if (data.Family != null)
+                                    { 
+                                        <p class="card-text">Family: @data.Family</p>
+                                    }
+                                    <p class="card-text">Rank in Board Game: @data.RankInboardgame</p>
+                                    <p class="card-text">Rank in Strategy Games: @data.RankInstrategygames</p>
+                                    <p class="card-text">Rank in Family Games: @data.RankInfamilygames</p>
+                                    <p class="card-text">Rank in Thematic: @data.RankInthematic</p>
+                                </div>
                             </div>
                         </div>
                    

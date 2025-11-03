@@ -16,7 +16,7 @@
 
     if (!String.IsNullOrEmpty(searchText) && !String.IsNullOrEmpty(selectedCategory))
     {
-        sql = "SELECT * FROM BoardGame AS b " +
+        sql = "SELECT DISTINCT b.* FROM BoardGame AS b " +
         " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
         "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
         " WHERE Name LIKE CONCAT(@0, '%') AND c.CategoryID LIKE @1 ORDER BY Name ASC";
@@ -24,12 +24,12 @@
     }
     else if (!String.IsNullOrEmpty(searchText))
     {
-        sql = "SELECT * FROM BoardGame WHERE Name LIKE CONCAT(@0, '%')";
+        sql = "SELECT DISTINCT b.* FROM BoardGame WHERE Name LIKE CONCAT(@0, '%')";
         data = db.Query(sql, searchText).ToList();
     }
     else if (!String.IsNullOrEmpty(selectedCategory))
     {
-        sql = "SELECT * FROM BoardGame AS b " +
+        sql = "SELECT DISTINCT b.* FROM BoardGame AS b " +
             " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
             "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
             " WHERE c.CategoryID LIKE @0 ORDER BY Name ASC";
@@ -37,7 +37,7 @@
     }
     else
     {
-        sql = "SELECT * FROM BoardGame AS b " +
+        sql = "SELECT DISTINCT b.* FROM BoardGame AS b " +
                     " LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
                     "  LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
                     " ORDER BY Name ASC";
