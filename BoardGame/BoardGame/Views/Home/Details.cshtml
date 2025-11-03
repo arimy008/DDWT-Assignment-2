@@ -1,0 +1,69 @@
+﻿@using WebMatrix.Data
+
+@{
+    var id = Request.QueryString["id"];
+    var db = Database.Open("BoardGame");
+
+    // define the query to be run
+    var sql = "SELECT b.*, c.Category AS categoryName " +
+                "FROM BoardGame AS b " +
+                "LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
+                "LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
+                "WHERE b.BGGId LIKE @0";
+
+
+
+    var data = db.QuerySingle(sql, id);
+
+}
+
+        <div class="jumbotron pt-1 pb-1 mt-2">
+            <h2 class="text-center">Product Detail</h2>
+        </div>
+
+
+        @if (data != null)
+        {
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@data.Name</h5>
+                            <div class="card-text"> 
+                                <p class="card-text">@data.Description</p>
+                                <p class="card-text">Category: @data.categoryName </p>
+                                <p class="card-text">Year Published: @data.YearPublished</p>
+                                <p class="card-text">Game Weight: @data.GameWeight</p>
+                                <p class="card-text">Min Players: @data.MinPlayers</p>
+                                <p class="card-text">Max Players: @data.MaxPlayers</p>
+                                <p class="card-text">Age: @data.ComAgeRec</p>
+                                <p class="card-text">Language Ease: @data.LanguageEase</p>
+                                <p class="card-text">Best Players: @data.BestPlayers</p>
+                                <p class="card-text">Number Owned: @data.NumOwned</p>
+                                <p class="card-text">Number Want: @data.NumWant</p>
+                                <p class="card-text">Number Wish: @data.NumWish</p>
+                                <p class="card-text">Mfg Playtime: @data.MfgPlaytime</p>
+                                <p class="card-text">Com Min Playtime: @data.ComMinPlaytime</p>
+                                <p class="card-text">Com Max Playtime: @data.ComMaxPlaytime</p>
+                                <p class="card-text">Mfg Age Rec: @data.MfgAgeRec</p>
+                                <p class="card-text">Number Alternates: @data.NumAlternates</p>
+                                <p class="card-text">Number Expansions: @data.NumExpansions</p>
+                                <p class="card-text">Number Implementations: @data.NumImplementations</p>
+                                <p class="card-text">Family: @data.Family</p>
+                                <p class="card-text">Rank in Board Game: @data.RankInboardgame</p>
+                                <p class="card-text">Rank in Strategy Games: @data.RankInstrategygames</p>
+                                <p class="card-text">Rank in Family Games: @data.RankInfamilygames</p>
+                                <p class="card-text">Rank in Thematic: @data.RankInthematic</p>
+                         
+                            </div>
+                        </div>
+                   
+                        <img class="card-img-bottom w-50" src="@data.ImagePath" alt="@data.Name" style="width: 540px;">
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <h2 class="text-center text-danger">Ooops - That BoardGame is not available!</h2>
+        }
