@@ -5,10 +5,10 @@
     var db = Database.Open("BoardGame");
 
     // define the query to be run
-    var sql = "SELECT b.*, c.Category AS categoryName, calc.reviewCount FROM BoardGame AS b " +
+    var sql = "SELECT b.*, c.Category AS categoryName, calc.avgRating, calc.reviewCount FROM BoardGame AS b " +
                 "LEFT JOIN GameCategory AS gc ON b.BGGId = gc.BGGId " +
                 "LEFT JOIN Category AS c ON gc.Category = c.CategoryID " +
-                "LEFT JOIN (SELECT BGGId, COUNT(*) AS reviewCount " +
+                "LEFT JOIN (SELECT BGGId, AVG(Rating) AS avgRating, COUNT(*) AS reviewCount " +
                 "FROM UserRating GROUP BY BGGId) AS calc ON b.BGGId = calc.BGGId WHERE b.BGGId LIKE @0";
 
     var data = db.QuerySingle(sql, id);
@@ -32,7 +32,7 @@
                                 <p class="card-text">@data.Description</p>
                                                                
                                 <p class="card-text">
-                                    (@(data.reviewCount ?? 0) @(data.reviewCount == 1 ? "Review" : "Reviews"))
+                                    (@(data.reviewCount ?? 0) @(data.reviewCount == 1 ? "Review" : "Reviews"), , Avg @Math.Round(Convert.ToDouble(data.avgRating), 2))
                                 </p>                          
                                 <div class="text-muted small">
                                     <p class="card-text">Category: @data.categoryName </p>
