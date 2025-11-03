@@ -53,20 +53,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrap demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <style>
-        /* Default styles for both views */
-        .view {
-            display: none;
-            padding: 20px;
-            border: 1px solid #ccc;
-            margin-top: 10px;
-        }
-
-        /* Show the active view */
-        .active {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="~/Content/Site.css">
 </head>
 <body>
     <h1>Board Game</h1>
@@ -75,8 +62,8 @@
             <input type="text" name="searchText" class="form-control" placeholder="Search Games" value="@Request.Form["searchText"]" />
         </div>
         <div class="col-3">
-            <select id="Category" name="category" class="form-control">
-                <option value=""></option>
+            <select id="Category" name="category" class="form-control" >
+                <option value="">Search Category</option>
                  @foreach (var row in catData)
                  {
                     <option value="@row.CategoryID" @(selectedCategory == row.CategoryID.ToString() ? "selected" : "")>
@@ -85,12 +72,12 @@
                  }
             </select>
         </div>
-        <div class="col-4">
+        <div class="col-3">
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
         <div class="col">
-            <button type="button" onclick="switchView('table')">Table View</button>
-            <button type="button" onclick="switchView('card')">Card View</button>
+            <button type="button" class="btn btn-outline-dark" onclick="switchView('table')">Table View</button>
+            <button type="button" class="btn btn-outline-dark" onclick="switchView('card')">Card View</button>
         </div>
     </form>
     <div id="tableView" class="view active">
@@ -101,9 +88,29 @@
                     <th scope="col">Game Name</th>
                     <th scope="col">Description</th>
                     <th scope="col">Year Published</th>
-                    <th scope="col">Game Weigt</th>
+                    <th scope="col">Game Weight</th>
+                    <th scope="col">Min Players</th>
+                    <th scope="col">Max Players</th>
                     <th scope="col">Age</th>
+                    <th scope="col">Language Ease</th>
+                    <th scope="col">Best Players</th>
+                    <th scope="col">Number Owned</th>
+                    <th scope="col">Number Want</th>
+                    <th scope="col">Number Wish</th>
+                    <th scope="col">Mfg Playtime</th>
+                    <th scope="col">Min Playtime</th>
+                    <th scope="col">Max Playtime</th>
+                    <th scope="col">Mfg Age Rec</th>
+                    <th scope="col">Number Alternates</th>
+                    <th scope="col">Number Expansions</th>
+                    <th scope="col">Number Implementations</th>
+                    <th scope="col">Family</th>
+                    <th scope="col">Rank in Board Game</th>
+                    <th scope="col">Rank in Strategy Games</th>
+                    <th scope="col">Rank in Family Games</th>
+                    <th scope="col">Rank in Thematic</th>
                     <th scope="col">Game Image</th>
+                    <th scope="col">More Details</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -115,12 +122,32 @@
                             <th scope="row">@row.BGGId</th>
                             <td>@row.Name</td>
                             <td title="@row.Description">
-                                @(row.Description.Length > 50 ? row.Description.Substring(0, 50) + "..." : row.Description)
+                                @(row.Description.Length > 30 ? row.Description.Substring(0, 50) + "..." : row.Description)
                             </td>
                             <td>@row.YearPublished</td>
-                            <td>@row.GameWeight</td>
-                            <td>@row.ComAgeRec</td>
+                            <td>@Math.Round(Convert.ToDouble(row.GameWeight), 2)</td>
+                            <td>@row.MinPlayers</td>
+                            <td>@row.MaxPlayers</td>
+                            <td>@Math.Round(Convert.ToDouble(row.ComAgeRec), 0)</td>
+                            <td>@Math.Round(Convert.ToDouble(row.LanguageEase), 0)</td>
+                            <td>@row.BestPlayers</td>
+                            <td>@row.NumOwned</td>
+                            <td>@row.NumWant</td>
+                            <td>@row.NumWish</td>
+                            <td>@row.MfgPlaytime</td>
+                            <td>@row.ComMinPlaytime</td>
+                            <td>@row.ComMaxPlaytime</td>
+                            <td>@row.MfgAgeRec</td>
+                            <td>@row.NumAlternates</td>
+                            <td>@row.NumExpansions</td>
+                            <td>@row.NumImplementations</td>
+                            <td>@row.Family</td>
+                            <td>@row.RankInboardgame</td>
+                            <td>@row.RankInstrategygames</td>
+                            <td>@row.RankInfamilygames</td>
+                            <td>@row.RankInthematic</td>
                             <td><img src="@row.ImagePath" class="img-fluid" alt="@row.Name"></td>
+                            <td> <a href="/Home/Details?id=@row.BGGId" class="btn btn-secondary btn-sm">Detail</a></td>
                         </tr>
                     }
                 }
@@ -133,7 +160,7 @@
             </tbody>
         </table>
     </div>
-    <div id="cardView" class="view">
+    <div id="cardView" class="view" >
 
         @if (data.Count > 0)
         {
@@ -149,7 +176,28 @@
                                 <p class="card-text" title="@row.Description">
                                     @(row.Description.Length > 50 ? row.Description.Substring(0, 50) + "..." : row.Description)
                                 </p>
-                                <p class="font-italic">@row.YearPublished</p>
+                                <p class="card-text">Year Published: @row.YearPublished</p>
+                                <p class="card-text">Game Weight: @Math.Round(Convert.ToDouble(row.GameWeight), 2)</p>
+                                <p class="card-text">Min Players: @row.MinPlayers</p>
+                                <p class="card-text">Max Players: @row.MaxPlayers</p>
+                                <p class="card-text">Age: @Math.Round(Convert.ToDouble(row.ComAgeRec), 0)</p>
+                                <p class="card-text">Language Ease: @Math.Round(Convert.ToDouble(row.LanguageEase), 0)</p>
+                                <p class="card-text">Best Players: @row.BestPlayers</p>
+                                <p class="card-text">Number Owned: @row.NumOwned</p>
+                                <p class="card-text">Number Want: @row.NumWant</p>
+                                <p class="card-text">Number Wish: @row.NumWish</p>
+                                <p class="card-text">Mfg Playtime: @row.MfgPlaytime</p>
+                                <p class="card-text">Com Min Playtime: @row.ComMinPlaytime</p>
+                                <p class="card-text">Com Max Playtime: @row.ComMaxPlaytime</p>
+                                <p class="card-text">Mfg Age Rec: @row.MfgAgeRec</p>
+                                <p class="card-text">Number Alternates: @row.NumAlternates</p>
+                                <p class="card-text">Number Expansions: @row.NumExpansions</p>
+                                <p class="card-text">Number Implementations: @row.NumImplementations</p>
+                                <p class="card-text">Family: @row.Family</p>
+                                <p class="card-text">Rank in Board Game: @row.RankInboardgame</p>
+                                <p class="card-text">Rank in Strategy Games: @row.RankInstrategygames</p>
+                                <p class="card-text">Rank in Family Games: @row.RankInfamilygames</p>
+                                <p class="card-text">Rank in Thematic: @row.RankInthematic</p>
                                 <a href="/Home/Details?id=@row.BGGId" class="btn btn-secondary">View Detail</a>
                             </div>
                         </div>
