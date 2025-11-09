@@ -8,7 +8,8 @@
     var fsql = "SELECT DISTINCT * FROM GameFamily ORDER BY Family ASC";
     var famData = db.Query(fsql);
 
-    
+   
+
    
     if (IsPost)
     {
@@ -32,7 +33,6 @@
 
         db.Execute(sql, newBGGId, name, desc, yr, weight, minP, maxP, age, lan, img, f);
 
-        
 
         Response.Redirect("/Home/Details?id=" + newBGGId);
 
@@ -100,9 +100,12 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="Family" class="form-label fw-bold">Family</label>
-                <select id="Family" name="FamilyCode" class="form-select" required>
+                <select id="Family" name="FamilyCode" class="form-select">
                     <option value="">Select family type</option>
-                    
+                    @foreach (var row in famData)
+                    {
+                        <option value="@row.Family">@row.Family</option>
+                    }
                 </select>
             </div>
 
@@ -119,7 +122,7 @@
                 <label for="ThemeSelect" class="form-label fw-bold">Select Existing Theme</label>
                 <select id="ThemeSelect" name="ThemeID" class="form-select">
                     <option value="">Select Theme</option>
-                    
+                  
                 </select>
             </div>
 
