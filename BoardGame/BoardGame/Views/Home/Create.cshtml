@@ -1,0 +1,144 @@
+﻿@using WebMatrix.Data;
+
+@{
+    
+    var db = Database.Open("BoardGame");
+
+    
+    var fsql = "SELECT DISTINCT * FROM GameFamily ORDER BY Family ASC";
+    var famData = db.Query(fsql);
+
+    
+   
+    if (IsPost)
+    {
+        var name = Request.Form["Name"];
+        var desc = Request.Form["Description"];
+        var yrSt = Request.Form["YearPublished"];
+        DateTime yr = DateTime.Parse(yrSt);
+        var weight = Request.Form["GameWeight"];
+        var minP = Request.Form["MinPlayers"];
+        var maxP = Request.Form["MaxPlayers"];
+        var age = Request.Form["ComAgeRec"];
+        var lan = Request.Form["LanguageEase"];
+        var img = Request.Form["ImagePath"];
+        var f = Request.Form["FamilyCode"];
+       
+
+        var newBGGId = db.QueryValue("SELECT ISNULL(MAX(BGGId), 0) + 1 FROM BoardGame");
+
+        var sql = "INSERT INTO BoardGame (BGGId, Name, Description, YearPublished, GameWeight, MinPlayers, MaxPlayers, LanguageEase, ComAgeRec, ImagePath, Family) " +
+            "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10); ";
+
+        db.Execute(sql, newBGGId, name, desc, yr, weight, minP, maxP, age, lan, img, f);
+
+        
+
+        Response.Redirect("/Home/Details?id=" + newBGGId);
+
+
+
+
+
+    }
+}
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create Game</title>
+    <link rel="stylesheet" href="~/Content/Site.css">
+</head>
+<body class="bg-light">
+    <div class="text-bg-light py-1 mt-2 mb-3">
+            <h2 class="text-center">Add a New Game</h2>
+        </div>
+
+    <form method="post" action="Create">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="Name" class="form-label fw-bold">Game Name</label>
+                <input type="text" name="Name" id="Name" class="form-control" placeholder="Enter game name" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="Description" class="form-label fw-bold">Description</label>
+                <textarea name="Description" id="Description" class="form-control" rows="4" maxlength="5000" placeholder="Enter a brief description" required></textarea>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Game Weight</label>
+                <input type="number" name="GameWeight" id="GameWeight" class="form-control" placeholder="e.g. 2">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Min Players</label>
+                <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" placeholder="e.g. 4">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Max Players</label>
+                <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" placeholder="e.g. 5">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Recommended Age</label>
+                <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" placeholder="e.g. 2">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Language Ease</label>
+                <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" placeholder="e.g. 4">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="Family" class="form-label fw-bold">Family</label>
+                <select id="Family" name="FamilyCode" class="form-select" required>
+                    <option value="">Select family type</option>
+                    
+                </select>
+            </div>
+
+
+            <div class="col-md-6">
+                <label class="form-label">Year Published</label>
+                <input type="datetime-local" name="YearPublished" class="form-control" id="YearPublished" required>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+
+            <div class="col-md-6">
+                <label for="ThemeSelect" class="form-label fw-bold">Select Existing Theme</label>
+                <select id="ThemeSelect" name="ThemeID" class="form-select">
+                    <option value="">Select Theme</option>
+                    
+                </select>
+            </div>
+
+            
+        </div>
+
+        <div class="mb-3">
+            <label for="ImagePath" class="form-label fw-bold">Game Image URL</label>
+            <input type="url" class="form-control" name="ImagePath" id="ImagePath" placeholder="Paste the image link">
+        </div>
+
+
+        <div>
+            <button type="reset" class="btn btn-outline-secondary">Clear</button>
+            <button type="submit" class="btn btn-outline-secondary">Add Game</button>
+        </div>
+    </form>
+
+
+</body>
+</html>
+
