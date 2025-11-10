@@ -12,11 +12,13 @@
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+/* Ensure form inputs always fit Bootstrap columns */
+input.form-control,
+select.form-select,
+textarea.form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
 }
 
 /* Default styles for both views */
@@ -98,3 +100,30 @@ h2 {
 .detail_container {
     background-color: #DAE1C7;
 }
+
+
+#create-page {
+    background-color: #FBF9EE;
+    margin: 0;
+    padding: 40px;
+    border-radius: 12px;
+    border: 3px solid saddlebrown;
+    border-radius: 10px;
+}
+
+#create-page h2 {
+    color: saddlebrown;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.create-form {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #FBF9EE;
+}
+
+
+
+
+
