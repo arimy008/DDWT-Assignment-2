@@ -1,0 +1,122 @@
+﻿@using WebMatrix.Data;
+
+@{
+   
+
+    var db = Database.Open("BoardGame");
+    var gID = Request.QueryString["id"];
+
+    var sql = "SELECT * FROM BoardGame WHERE BGGID = @0";
+    var data = db.QuerySingle(sql, gID);
+
+    var famSql = "SELECT DISTINCT * FROM GameFamily ORDER BY Family ASC";
+    var famData = db.Query(famSql);
+
+    var themeSql = "SELECT DISTINCT * FROM Theme ORDER BY ThemeName ASC";
+    var themeData = db.Query(themeSql);
+
+    var currentThemeID = db.QueryValue("SELECT ThemeID FROM GameInThemes WHERE BGGID = @0", gID);
+
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create Game</title>
+    <link rel="stylesheet" href="~/Content/Site.css">
+</head>
+<body class="bg-light">
+    <h2 class="text-center bg-light m-2">Edit Game Details</h2>
+   
+    <div class="row justify-content-center">
+        <form method="post" class="col-8">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Game Name</label>
+                <input type="text" name="Name" class="form-control" value="@data.Name" maxlength="100" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Description</label>
+                <textarea name="Description" class="form-control" rows="4" maxlength="5000" required>@data.Description</textarea>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">GameWeight</label>
+                    <input type="number" name="GameWeight" id="GameWeight" class="form-control" value="@data.GameWeight">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Min Players</label>
+                    <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" value="@data.MinPlayers">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max Players</label>
+                    <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" value="@data.MaxPlayers">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Recommended Age</label>
+                    <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" value="@data.ComAgeRec">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Language Ease</label>
+                    <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" value="@data.LanguageEase">
+                </div>
+            </div>
+
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Family</label>
+                    <select name="FamilyCode" class="form-select" required>
+                        <option value="">Select Family</option>
+
+                        @foreach (var row in famData)
+                        {
+                            <option value="@row.Family" @(row.Family == data.Family ? "selected" : "")>@row.Family</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Year Published</label>
+                    <input type="datetime-local" name="YearPublished" class="form-control" value="@String.Format("{0:yyyy-MM-ddTHH:mm}", data.YearPublished)" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Select Existing Theme</label>
+                    <select name="ThemeID" class="form-select">
+                        <option value="">Select Theme</option>
+                        @foreach (var theme in themeData)
+                        {
+                            <option value="@theme.ThemeID" @(theme.ThemeID == currentThemeID ? "selected" : "")>
+                                @theme.ThemeName
+                            </option>
+                         }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Or Add New Theme</label>
+                    <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Image URL</label>
+                <input type="url" name="ImagePath" class="form-control" value="@data.ImagePath" placeholder="Paste image link">
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-success">Save</button>
+                <a href="/Home/Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
