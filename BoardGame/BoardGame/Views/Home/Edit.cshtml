@@ -82,12 +82,34 @@
 
         data = db.QuerySingle(sql, gID);
 
+        if (!string.IsNullOrEmpty(newTheme))
+        {
+            
+            var existingThemeSql = "SELECT ThemeID FROM Theme WHERE LOWER(ThemeName) = LOWER(@0)";
+            var existingTheme = db.QueryValue(existingThemeSql, newTheme);
+
+            if (existingTheme == null)
+            {
+           
+                var lastId = db.QueryValue("SELECT ISNULL(MAX(CAST(SUBSTRING(ThemeID, 2, LEN(ThemeID)-1) AS INT)), 0) FROM Theme");
+                var newThemeID = "T" + (Convert.ToInt32(lastId) + 1);
+
+               
+                db.Execute("INSERT INTO Theme (ThemeID, ThemeName) VALUES (@0, @1)", newThemeID, newTheme);
+                themeID = newThemeID;
+            }
+            else
+            {
+                themeID = existingTheme.ToString();
+            }
+        }
+
+      
+        db.Execute("DELETE FROM GameInThemes WHERE BGGID=@0", gID);
+
+       
         if (!string.IsNullOrEmpty(themeID))
         {
-            // Remove existing theme for this game (if any)
-            db.Execute("DELETE FROM GameInThemes WHERE BGGID=@0", gID);
-
-            // Insert new theme
             db.Execute("INSERT INTO GameInThemes (BGGID, ThemeID) VALUES (@0, @1)", gID, themeID);
         }
 
@@ -117,7 +139,7 @@
 
     }
     <div class="row justify-content-center">
-        <form method="post" class="col-8">
+        <form method="post" class="col-8" onsubmit="return confirmNewTheme(this)">
             <div class="mb-3">
                 <label class="form-label fw-bold">Game Name</label>
                 <input type="text" name="Name" class="form-control" value="@data.Name" maxlength="100" required>
@@ -185,6 +207,10 @@
                             </option>
                         }
                     </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="Theme" class="form-label fw-bold">Or Add a New Theme</label>
+                    <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
                 </div>
             </div>
             <div class="row mb-3">
@@ -259,7 +285,6 @@
                 </div>
             </div>
 
-
             <div class="mb-3">
                 <label class="form-label fw-bold">Image URL</label>
                 <input type="url" name="ImagePath" class="form-control" value="@data.ImagePath" placeholder="Paste image link">
@@ -271,6 +296,15 @@
             </div>
         </form>
     </div>
+    <script>
+        function confirmNewTheme(form) {
+            var newTheme = form.Theme.value.trim();
+            if (newTheme.length > 0) {
+                return confirm("Theme: '" + newTheme + "' do not exist in the current system. Do you want to add the new records or cancel the update?");
+            }
+            return true;
+        }
+    </script>
 
 </body>
 </html>
