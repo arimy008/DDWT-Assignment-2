@@ -1,175 +1,267 @@
 ﻿@using WebMatrix.Data;
 
-@{
-    
-    var db = Database.Open("BoardGame");
-    
-    var fsql = "SELECT DISTINCT * FROM GameFamily ORDER BY Family ASC";
-    var famData = db.Query(fsql);
+    @{
 
-    
-    var themeSql = "SELECT DISTINCT * FROM Theme ORDER BY ThemeName ASC";
-    var themeData = db.Query(themeSql);
+        var db = Database.Open("BoardGame");
 
-    if (IsPost)
-    {
-        var name = Request.Form["Name"];
-        var desc = Request.Form["Description"];
-        var yrSt = Request.Form["YearPublished"];
-        DateTime yr = DateTime.Parse(yrSt);
-        var weight = Request.Form["GameWeight"];
-        var minP = Request.Form["MinPlayers"];
-        var maxP = Request.Form["MaxPlayers"];
-        var age = Request.Form["ComAgeRec"];
-        var lan = Request.Form["LanguageEase"];
-        var img = Request.Form["ImagePath"];
-        var f = Request.Form["FamilyCode"];
-        var themeID = Request.Form["ThemeID"];
-        var newTheme = Request.Form["Theme"];
+        var fsql = "SELECT DISTINCT * FROM GameFamily ORDER BY Family ASC";
+        var famData = db.Query(fsql);
 
-        if (!string.IsNullOrEmpty(newTheme))
+
+        var themeSql = "SELECT DISTINCT * FROM Theme ORDER BY ThemeName ASC";
+        var themeData = db.Query(themeSql);
+
+        if (IsPost)
         {
-            var existingThemeSql = "SELECT ThemeID FROM Theme WHERE LOWER(ThemeName) = LOWER(@0)";
-            var existingTheme = db.QueryValue(existingThemeSql, newTheme);
+            var name = Request.Form["Name"];
+            var desc = Request.Form["Description"];
+            var yrSt = Request.Form["YearPublished"];
+            DateTime yr = DateTime.Parse(yrSt);
+            var weight = Request.Form["GameWeight"];
+            var minP = Request.Form["MinPlayers"];
+            var maxP = Request.Form["MaxPlayers"];
+            var age = Request.Form["ComAgeRec"];
+            var lan = Request.Form["LanguageEase"];
+            var img = Request.Form["ImagePath"];
+            var f = Request.Form["FamilyCode"];
+            var themeID = Request.Form["ThemeID"];
+            var newTheme = Request.Form["Theme"];
+            var bestPlayers = Request.Form["BestPlayers"];
+            var numOwned = Request.Form["NumOwned"];
+            var numWant = Request.Form["NumWant"];
+            var numWish = Request.Form["NumWish"];
+            var mfgPlaytime = Request.Form["MfgPlaytime"];
+            var comMinPlaytime = Request.Form["ComMinPlaytime"];
+            var comMaxPlaytime = Request.Form["ComMaxPlaytime"];
+            var mfgAgeRec = Request.Form["MfgAgeRec"];
+            var numAlternates = Request.Form["NumAlternates"];
+            var numExpansions = Request.Form["NumExpansions"];
+            var numImplementations = Request.Form["NumImplementations"];
+            var rankBoardgame = Request.Form["RankInBoardGame"];
+            var rankStrategy = Request.Form["RankInStrategyGames"];
+            var rankFamily = Request.Form["RankInFamilyGames"];
+            var rankThematic = Request.Form["RankInThematic"];
 
-            if (existingTheme == null)
+            if (!string.IsNullOrEmpty(newTheme))
             {
-                var lastId = db.QueryValue("SELECT ISNULL(MAX(CAST(SUBSTRING(ThemeID, 2, LEN(ThemeID)-1) AS INT)), 0) FROM Theme");
-                var newThemeID = "T" + (Convert.ToInt32(lastId) + 1);
+                var existingThemeSql = "SELECT ThemeID FROM Theme WHERE LOWER(ThemeName) = LOWER(@0)";
+                var existingTheme = db.QueryValue(existingThemeSql, newTheme);
 
-                var insertThemeSQL = "INSERT INTO Theme (ThemeID, ThemeName) VALUES(@0, @1)";
-                themeID = db.QueryValue(insertThemeSQL, newThemeID, newTheme);
-                themeID = newThemeID.ToString();
+                if (existingTheme == null)
+                {
+                    var lastId = db.QueryValue("SELECT ISNULL(MAX(CAST(SUBSTRING(ThemeID, 2, LEN(ThemeID)-1) AS INT)), 0) FROM Theme");
+                    var newThemeID = "T" + (Convert.ToInt32(lastId) + 1);
+
+                    var insertThemeSQL = "INSERT INTO Theme (ThemeID, ThemeName) VALUES(@0, @1)";
+                    themeID = db.QueryValue(insertThemeSQL, newThemeID, newTheme);
+                    themeID = newThemeID.ToString();
+                }
+                else
+                {
+                    themeID = existingTheme.ToString();
+                }
             }
-            else
+            var newBGGId = db.QueryValue("SELECT ISNULL(MAX(BGGId), 0) + 1 FROM BoardGame");
+
+            var sql = "INSERT INTO BoardGame (BGGId, Name, Description, YearPublished, GameWeight, MinPlayers, MaxPlayers, LanguageEase, ComAgeRec, ImagePath, Family, " +
+                "BestPlayers, NumOwned, NumWant, NumWish, MfgPlaytime, ComMinPlaytime, ComMaxPlaytime, MfgAgeRec, NumAlternates, NumExpansions, NumImplementations, " +
+                "RankInBoardGame, RankInStrategyGames, RankInFamilyGames, RankInThematic) " +
+                "VALUES (@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14,@15,@16,@17,@18,@19,@20,@21,@22,@23,@24,@25)";
+
+            db.Execute(sql, newBGGId, name, desc, yr, weight, minP, maxP, lan, age, img, f,
+                       bestPlayers, numOwned, numWant, numWish, mfgPlaytime, comMinPlaytime, comMaxPlaytime, mfgAgeRec, numAlternates, numExpansions, numImplementations,
+                       rankBoardgame, rankStrategy, rankFamily, rankThematic);
+
+            if (!string.IsNullOrEmpty(themeID))
             {
-                themeID = existingTheme.ToString();
+                db.Execute("INSERT INTO GameInThemes (BGGId, ThemeID) VALUES (@0, @1)", newBGGId, themeID);
             }
+
+            Response.Redirect("/Home/Details?id=" + newBGGId);
+
+
         }
-        var newBGGId = db.QueryValue("SELECT ISNULL(MAX(BGGId), 0) + 1 FROM BoardGame");
-
-        var sql = "INSERT INTO BoardGame (BGGId, Name, Description, YearPublished, GameWeight, MinPlayers, MaxPlayers, LanguageEase, ComAgeRec, ImagePath, Family) " +
-            "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10); ";
-
-        db.Execute(sql, newBGGId, name, desc, yr, weight, minP, maxP, age, lan, img, f);
-
-        if (!string.IsNullOrEmpty(themeID))
-        {
-            db.Execute("INSERT INTO GameInThemes (BGGId, ThemeID) VALUES (@0, @1)", newBGGId, themeID);
-        }
-
-        Response.Redirect("/Home/Details?id=" + newBGGId);
-
-
     }
-}
 
 
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Create Game</title>
-    <link rel="stylesheet" href="~/Content/Site.css">
-</head>
-<body class="bg-light">
-    <div class="container" id="create-page">
-        <div class="text-bg-light py-1 mt-2 mb-3">
-            <h2 class="text-center">Add a New Game</h2>
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Create Game</title>
+        <link rel="stylesheet" href="~/Content/Site.css">
+    </head>
+    <body class="bg-light">
+        <div class="container" id="create-page">
+            <div class="text-bg-light py-1 mt-2 mb-3">
+                <h2 class="text-center">Add a New Game</h2>
+            </div>
+
+            <form class="create-form" method="post" action="Create">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="Name" class="form-label fw-bold">Game Name</label>
+                        <input type="text" name="Name" id="Name" class="form-control" placeholder="Enter game name" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="Description" class="form-label fw-bold">Description</label>
+                        <textarea name="Description" id="Description" class="form-control" rows="4" maxlength="5000" placeholder="Enter a brief description" required></textarea>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Game Weight</label>
+                        <input type="number" name="GameWeight" id="GameWeight" class="form-control" placeholder="e.g. 2">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Min Players</label>
+                        <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" placeholder="e.g. 4">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Players</label>
+                        <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" placeholder="e.g. 5">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Recommended Age</label>
+                        <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" placeholder="e.g. 2">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Language Ease</label>
+                        <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" placeholder="e.g. 4">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="Family" class="form-label fw-bold">Family</label>
+                        <select id="Family" name="FamilyCode" class="form-select">
+                            <option value="">Select family type</option>
+                            @foreach (var row in famData)
+                            {
+                                <option value="@row.Family">@row.Family</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="form-label">Year Published</label>
+                        <input type="datetime-local" name="YearPublished" class="form-control" id="YearPublished" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label for="ThemeSelect" class="form-label fw-bold">Select Existing Theme</label>
+                        <select id="ThemeSelect" name="ThemeID" class="form-select">
+                            <option value="">Select Theme</option>
+                            @foreach (var theme in themeData)
+                            {
+                                <option value="@theme.ThemeID">@theme.ThemeName</option>
+                            }w
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Theme" class="form-label fw-bold">Or Add a New Theme</label>
+                        <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ImagePath" class="form-label fw-bold">Game Image URL</label>
+                    <input type="url" class="form-control" name="ImagePath" id="ImagePath" placeholder="Paste the image link">
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Best Players</label>
+                        <input type="text" name="BestPlayers" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Owned</label>
+                        <input type="number" name="NumOwned" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Want</label>
+                        <input type="number" name="NumWant" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Wish</label>
+                        <input type="number" name="NumWish" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Mfg Playtime</label>
+                        <input type="text" name="MfgPlaytime" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Com Min Playtime</label>
+                        <input type="text" name="ComMinPlaytime" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Com Max Playtime</label>
+                        <input type="text" name="ComMaxPlaytime" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Mfg Age Rec</label>
+                        <input type="number" name="MfgAgeRec" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Alternates</label>
+                        <input type="number" name="NumAlternates" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Expansions</label>
+                        <input type="number" name="NumExpansions" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Implementations</label>
+                        <input type="number" name="NumImplementations" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Board Game</label>
+                        <input type="number" name="RankInBoardGame" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Strategy Games</label>
+                        <input type="number" name="RankInStrategyGames" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Family Games</label>
+                        <input type="number" name="RankInFamilyGames" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Thematic</label>
+                        <input type="number" name="RankInThematic" class="form-control">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="reset" class="btn btn-outline-secondary">Clear</button>
+                    <a href="/Home/Index" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">Add Game</button>
+                </div>
+            </form>
+
         </div>
-
-        <form class="create-form" method="post" action="Create">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="Name" class="form-label fw-bold">Game Name</label>
-                    <input type="text" name="Name" id="Name" class="form-control" placeholder="Enter game name" required>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <label for="Description" class="form-label fw-bold">Description</label>
-                    <textarea name="Description" id="Description" class="form-control" rows="4" maxlength="5000" placeholder="Enter a brief description" required></textarea>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Game Weight</label>
-                    <input type="number" name="GameWeight" id="GameWeight" class="form-control" placeholder="e.g. 2">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Min Players</label>
-                    <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" placeholder="e.g. 4">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Max Players</label>
-                    <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" placeholder="e.g. 5">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Recommended Age</label>
-                    <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" placeholder="e.g. 2">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Language Ease</label>
-                    <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" placeholder="e.g. 4">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="Family" class="form-label fw-bold">Family</label>
-                    <select id="Family" name="FamilyCode" class="form-select">
-                        <option value="">Select family type</option>
-                        @foreach (var row in famData)
-                        {
-                            <option value="@row.Family">@row.Family</option>
-                        }
-                    </select>
-                </div>
+    </body>
+    </html>
 
 
-                <div class="col-md-6">
-                    <label class="form-label">Year Published</label>
-                    <input type="datetime-local" name="YearPublished" class="form-control" id="YearPublished">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-
-                <div class="col-md-6">
-                    <label for="ThemeSelect" class="form-label fw-bold">Select Existing Theme</label>
-                    <select id="ThemeSelect" name="ThemeID" class="form-select">
-                        <option value="">Select Theme</option>
-                        @foreach (var theme in themeData)
-                        {
-                            <option value="@theme.ThemeID">@theme.ThemeName</option>
-                        }w
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="Theme" class="form-label fw-bold">Or Add a New Theme</label>
-                    <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="ImagePath" class="form-label fw-bold">Game Image URL</label>
-                <input type="url" class="form-control" name="ImagePath" id="ImagePath" placeholder="Paste the image link">
-            </div>
-
-
-            <div>
-                <button type="reset" class="btn btn-outline-secondary">Clear</button>
-                <a href="/Home/Index" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-success">Add Game</button>
-            </div>
-        </form>
-
-    </div>
-</body>
-</html>
 
