@@ -123,188 +123,190 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Game Details</title>
+    <link rel="stylesheet" href="~/Content/Site.css">
 </head>
 <body class="bg-light">
-    <h2 class="text-center bg-light m-2">Edit Game Details</h2>
-    @if (IsPost)
-    {
-        if (updateCount > 0)
+    <div class="container" id="edit-page">
+        <h2 class="text-center bg-light m-2">Edit Game Details</h2>
+        @if (IsPost)
         {
-            <div class="alert alert-success">Game details Updated: @updateCount</div>
-        }
-        else
-        {
-            <div class="alert alert-danger">Game details not updated!!</div>
-        }
-
-    }
-    <div class="row justify-content-center">
-        <form method="post" class="col-8" onsubmit="return confirmNewTheme(this)">
-            <div class="mb-3">
-                <label class="form-label fw-bold">Game Name</label>
-                <input type="text" name="Name" class="form-control" value="@data.Name" maxlength="100" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Description</label>
-                <textarea name="Description" class="form-control" rows="4" maxlength="5000" required>@data.Description</textarea>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">GameWeight</label>
-                    <input type="number" name="GameWeight" id="GameWeight" class="form-control" value="@data.GameWeight">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Min Players</label>
-                    <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" value="@data.MinPlayers">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Max Players</label>
-                    <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" value="@data.MaxPlayers">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Recommended Age</label>
-                    <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" value="@data.ComAgeRec">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Language Ease</label>
-                    <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" value="@data.LanguageEase">
-                </div>
-            </div>
-
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Family</label>
-                    <select name="FamilyCode" class="form-select">
-                        <option value="">Select Family</option>
-
-                        @foreach (var row in famData)
-                        {
-                            <option value="@row.Family" @(row.Family == data.Family ? "selected" : "")>@row.Family</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Year Published</label>
-                    <input type="datetime-local" name="YearPublished" class="form-control" value="@String.Format("{0:yyyy-MM-ddTHH:mm}", data.YearPublished)" required>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Select Existing Theme</label>
-                    <select name="ThemeID" class="form-select">
-                        <option value="">Select Theme</option>
-                        @foreach (var theme in themeData)
-                        {
-                            <option value="@theme.ThemeID" @(theme.ThemeID == currentThemeID ? "selected" : "")>
-                                @theme.ThemeName
-                            </option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="Theme" class="form-label fw-bold">Or Add a New Theme</label>
-                    <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Best Players</label>
-                    <input type="text" name="BestPlayers" class="form-control" value="@data.BestPlayers">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Owned</label>
-                    <input type="number" name="NumOwned" class="form-control" value="@data.NumOwned">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Want</label>
-                    <input type="number" name="NumWant" class="form-control" value="@data.NumWant">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Wish</label>
-                    <input type="number" name="NumWish" class="form-control" value="@data.NumWish">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Mfg Playtime</label>
-                    <input type="text" name="MfgPlaytime" class="form-control" value="@data.MfgPlaytime">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Com Min Playtime</label>
-                    <input type="text" name="ComMinPlaytime" class="form-control" value="@data.ComMinPlaytime">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Com Max Playtime</label>
-                    <input type="text" name="ComMaxPlaytime" class="form-control" value="@data.ComMaxPlaytime">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Mfg Age Rec</label>
-                    <input type="number" name="MfgAgeRec" class="form-control" value="@data.MfgAgeRec">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Alternates</label>
-                    <input type="number" name="NumAlternates" class="form-control" value="@data.NumAlternates">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Expansions</label>
-                    <input type="number" name="NumExpansions" class="form-control" value="@data.NumExpansions">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Number Implementations</label>
-                    <input type="number" name="NumImplementations" class="form-control" value="@data.NumImplementations">
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Rank in Board Game</label>
-                    <input type="number" name="RankInBoardGame" class="form-control" value="@data.RankInBoardGame">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Rank in Strategy Games</label>
-                    <input type="number" name="RankInStrategyGames" class="form-control" value="@data.RankInStrategyGames">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Rank in Family Games</label>
-                    <input type="number" name="RankInFamilyGames" class="form-control" value="@data.RankInFamilyGames">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Rank in Thematic</label>
-                    <input type="number" name="RankInThematic" class="form-control" value="@data.RankInThematic">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Image URL</label>
-                <input type="url" name="ImagePath" class="form-control" value="@data.ImagePath" placeholder="Paste image link">
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-success">Save</button>
-                <a href="/Home/Index" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
-    </div>
-    <script>
-        function confirmNewTheme(form) {
-            var newTheme = form.Theme.value.trim();
-            if (newTheme.length > 0) {
-                return confirm("Theme: '" + newTheme + "' do not exist in the current system. Do you want to add the new records or cancel the update?");
+            if (updateCount > 0)
+            {
+                <div class="alert alert-success">Game details Updated: @updateCount</div>
             }
-            return true;
-        }
-    </script>
+            else
+            {
+                <div class="alert alert-danger">Game details not updated!!</div>
+            }
 
+        }
+        <div class="row justify-content-center">
+            <form id="edit-form" method="post" class="col-8" onsubmit="return confirmNewTheme(this)">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Game Name</label>
+                    <input type="text" name="Name" class="form-control" value="@data.Name" maxlength="100" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea name="Description" class="form-control" rows="4" maxlength="5000" required>@data.Description</textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">GameWeight</label>
+                        <input type="number" name="GameWeight" id="GameWeight" class="form-control" value="@data.GameWeight">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Min Players</label>
+                        <input type="number" name="MinPlayers" id="MinPlayers" class="form-control" value="@data.MinPlayers">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Players</label>
+                        <input type="number" name="MaxPlayers" id="MaxPlayers" class="form-control" value="@data.MaxPlayers">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Recommended Age</label>
+                        <input type="number" name="ComAgeRec" id="ComAgeRec" class="form-control" value="@data.ComAgeRec">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Language Ease</label>
+                        <input type="number" name="LanguageEase" id="LanguageEase" class="form-control" value="@data.LanguageEase">
+                    </div>
+                </div>
+
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Family</label>
+                        <select name="FamilyCode" class="form-select">
+                            <option value="">Select Family</option>
+
+                            @foreach (var row in famData)
+                            {
+                                <option value="@row.Family" @(row.Family == data.Family ? "selected" : "")>@row.Family</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Year Published</label>
+                        <input type="datetime-local" name="YearPublished" class="form-control" value="@String.Format("{0:yyyy-MM-ddTHH:mm}", data.YearPublished)" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Select Existing Theme</label>
+                        <select name="ThemeID" class="form-select">
+                            <option value="">Select Theme</option>
+                            @foreach (var theme in themeData)
+                            {
+                                <option value="@theme.ThemeID" @(theme.ThemeID == currentThemeID ? "selected" : "")>
+                                    @theme.ThemeName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Theme" class="form-label fw-bold">Or Add a New Theme</label>
+                        <input type="text" name="Theme" id="Theme" class="form-control" placeholder="Enter new theme name">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Best Players</label>
+                        <input type="text" name="BestPlayers" class="form-control" value="@data.BestPlayers">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Owned</label>
+                        <input type="number" name="NumOwned" class="form-control" value="@data.NumOwned">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Want</label>
+                        <input type="number" name="NumWant" class="form-control" value="@data.NumWant">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Wish</label>
+                        <input type="number" name="NumWish" class="form-control" value="@data.NumWish">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Mfg Playtime</label>
+                        <input type="text" name="MfgPlaytime" class="form-control" value="@data.MfgPlaytime">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Com Min Playtime</label>
+                        <input type="text" name="ComMinPlaytime" class="form-control" value="@data.ComMinPlaytime">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Com Max Playtime</label>
+                        <input type="text" name="ComMaxPlaytime" class="form-control" value="@data.ComMaxPlaytime">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Mfg Age Rec</label>
+                        <input type="number" name="MfgAgeRec" class="form-control" value="@data.MfgAgeRec">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Alternates</label>
+                        <input type="number" name="NumAlternates" class="form-control" value="@data.NumAlternates">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Expansions</label>
+                        <input type="number" name="NumExpansions" class="form-control" value="@data.NumExpansions">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Number Implementations</label>
+                        <input type="number" name="NumImplementations" class="form-control" value="@data.NumImplementations">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Board Game</label>
+                        <input type="number" name="RankInBoardGame" class="form-control" value="@data.RankInBoardGame">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Strategy Games</label>
+                        <input type="number" name="RankInStrategyGames" class="form-control" value="@data.RankInStrategyGames">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Family Games</label>
+                        <input type="number" name="RankInFamilyGames" class="form-control" value="@data.RankInFamilyGames">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Rank in Thematic</label>
+                        <input type="number" name="RankInThematic" class="form-control" value="@data.RankInThematic">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Image URL</label>
+                    <input type="url" name="ImagePath" class="form-control" value="@data.ImagePath" placeholder="Paste image link">
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="/Home/Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+        <script>
+            function confirmNewTheme(form) {
+                var newTheme = form.Theme.value.trim();
+                if (newTheme.length > 0) {
+                    return confirm("Theme: '" + newTheme + "' do not exist in the current system. Do you want to add the new records or cancel the update?");
+                }
+                return true;
+            }
+        </script>
+    </div>
 </body>
 </html>
